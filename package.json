@@ -1,0 +1,45 @@
+{
+  "name": "slider-nexus",
+  "version": "0.0.1",
+  "description": "",
+  "keywords": [
+    "webpack",
+    "react",
+    "styled-components",
+    "react-dom"
+  ],
+  "author": "",
+  "license": "MIT",
+  "scripts": {
+    "start": "npx nexus-scripts start  ",
+    "build": "npx nexus-scripts build  "
+  },
+  "dependencies": {
+    "@hot-loader/react-dom": "16.10.2",
+    "@types/react": "16.9.5",
+    "@types/react-dom": "16.9.1",
+    "@types/styled-components": "4.1.19",
+    "nexus-scripts": "^1.0.5",
+    "react": "16.10.2",
+    "react-dom": "16.10.2",
+    "styled-components": "4.4.0"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "1.12.0",
+    "@typescript-eslint/parser": "1.12.0",
+    "confusing-browser-globals": "1.0.9",
+    "eslint": "5.3.0",
+    "eslint-config-airbnb": "17.1.1",
+    "eslint-config-prettier": "6.0.0",
+    "eslint-config-webpack-nexus": "^1.0.1",
+    "eslint-plugin-import": "2.18.0",
+    "eslint-plugin-jsx-a11y": "6.2.3",
+    "eslint-plugin-prettier": "3.0.0",
+    "eslint-plugin-react": "7.14.2",
+    "eslint-plugin-react-hooks": "1.6.1",
+    "node-sass": "4.13.0",
+    "prettier": "1.15.3",
+    "typescript": "3.5.3",
+    "typescript-styled-plugin": "0.14.0"
+  }
+}
