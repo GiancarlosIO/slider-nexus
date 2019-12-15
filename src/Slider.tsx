@@ -6,13 +6,22 @@ const Container = styled.div`
   overflow: hidden;
 `;
 
-const Inner = styled.div`
+const Inner = styled.div<{ isTouch }>`
   display: flex;
   flex-flow: row nowrap;
-  transition: transform 0.3s ease;
+  ${props => !props.isTouch && `transition: transform 0.3s ease;`}
 `;
 
+/**
+ * TODO: Add i10 support https://css-tricks.com/the-javascript-behind-touch-friendly-sliders/
+ * ie10 does not have touch events :( https://css-tricks.com/the-javascript-behind-touch-friendly-sliders/
+ */
+
 const Slider = ({ children }) => {
+  const touchRef = React.useRef({
+    startX: 0,
+    moveX: 0,
+  });
   // const visibleElementIndex = React.useRef<number>(0);
   const innerRef = React.useRef<HTMLDivElement>(null);
   const containerRef = React.useRef<HTMLDivElement>(null);
@@ -24,7 +33,16 @@ const Slider = ({ children }) => {
     gap: 0,
   });
   // const [innerSliderWidth, setInnerSlider] = React.useState(0);
-  const [currentIndex, setCurrentIndex] = React.useState(0);
+  const [positionComputedValues, setPositionComputedValues] = React.useState<{
+    currentIndex: number;
+    translateXValue: number;
+    isTouch?: boolean;
+  }>({
+    currentIndex: 0,
+    translateXValue: 0,
+    isTouch: false,
+  });
+  // const [currentIndex, setCurrentIndex] = React.useState(0);
 
   const childrens = React.Children.toArray(children);
 
@@ -33,9 +51,7 @@ const Slider = ({ children }) => {
       computedValues.containerWidth / computedValues.itemWidth,
     );
 
-    console.log({ visibleElments });
-
-    setCurrentIndex(index => {
+    setPositionComputedValues(values => {
       /**
        * if we are showing multiples elements we need to reset the position if we are "showing" the last element
        * ---
@@ -45,26 +61,59 @@ const Slider = ({ children }) => {
        */
       if (
         visibleElments > 1 &&
-        visibleElments + currentIndex >= children.length
+        visibleElments + values.currentIndex >= children.length
       ) {
-        return 0;
+        return {
+          isTouch: false,
+          currentIndex: 0,
+          translateXValue:
+            0 * computedValues.itemWidth + 0 * computedValues.gap,
+        };
       }
 
       /**
        * If we are in the last slide, reset the index
        */
-      if (currentIndex >= childrens.length - 1) {
-        return 0;
+      if (values.currentIndex >= childrens.length - 1) {
+        return {
+          currentIndex: 0,
+          isTouch: false,
+          translateXValue:
+            0 * computedValues.itemWidth + 0 * computedValues.gap,
+        };
       }
-      return index + 1;
+
+      const currentIndex = values.currentIndex + 1;
+
+      return {
+        isTouch: false,
+        currentIndex,
+        translateXValue:
+          currentIndex * computedValues.itemWidth +
+          currentIndex * computedValues.gap,
+      };
     });
   };
 
   const onPrev = () => {
-    if (currentIndex === 0) {
-      return;
+    if (positionComputedValues.currentIndex === 0) {
+      return setPositionComputedValues({
+        isTouch: false,
+        currentIndex: 0,
+        translateXValue: 0,
+      });
     }
-    setCurrentIndex(index => index - 1);
+    setPositionComputedValues(values => {
+      const currentIndex = values.currentIndex - 1;
+
+      return {
+        isTouch: false,
+        currentIndex,
+        translateXValue:
+          currentIndex * computedValues.itemWidth +
+          currentIndex * computedValues.gap,
+      };
+    });
   };
 
   React.useLayoutEffect(() => {
@@ -94,17 +143,63 @@ const Slider = ({ children }) => {
     }
   }, []);
 
-  // visibleElementIndex.current = Math.round(
-  //   computedValues.containerWidth / computedValues.itemWidth,
-  // );
-  // We need to calculate what elements are visible!
+  const onTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+    touchRef.current.startX = event.touches[0].pageX;
+    setPositionComputedValues({
+      ...positionComputedValues,
+      isTouch: true,
+    });
+    console.log({ touch: touchRef.current });
+  };
 
-  console.log({
-    currentIndex,
-    // innerSliderWidth,
-    // visibleIndex: visibleElementIndex.current,
-    computedValues,
-  });
+  const onTouchMove = (event: React.TouchEvent<HTMLDivElement>) => {
+    touchRef.current.moveX = event.touches[0].pageX;
+
+    const translateXValue =
+      positionComputedValues.currentIndex * computedValues.itemWidth +
+      positionComputedValues.currentIndex * computedValues.gap +
+      (touchRef.current.startX - touchRef.current.moveX);
+
+    console.log({ touch: touchRef.current, translateXValue });
+
+    setPositionComputedValues({
+      ...positionComputedValues,
+      translateXValue,
+    });
+  };
+
+  const onTouchEnd = () => {
+    const lastTranslateXValue =
+      positionComputedValues.currentIndex * computedValues.itemWidth +
+      positionComputedValues.currentIndex * computedValues.gap;
+
+    setPositionComputedValues({ ...positionComputedValues, isTouch: true });
+    const panX = computedValues.itemWidth / 3;
+
+    if (positionComputedValues.translateXValue > lastTranslateXValue + panX) {
+      console.log('next');
+
+      onNext();
+    } else if (
+      positionComputedValues.translateXValue + panX <
+      lastTranslateXValue
+    ) {
+      console.log('prev');
+      onPrev();
+    } else {
+      setPositionComputedValues({
+        ...positionComputedValues,
+        isTouch: false,
+        translateXValue: lastTranslateXValue,
+      });
+    }
+    // here we decide if we need to go to the next or prev slider
+  };
+
+  // console.log({
+  //   positionComputedValues,
+  //   computedValues,
+  // });
 
   /**
    * TODO: ADD CSS PREFIX TO TRAMSLATE CSS RULE
@@ -115,11 +210,15 @@ const Slider = ({ children }) => {
     <div>
       <Container ref={containerRef}>
         <Inner
+          isTouch={positionComputedValues.isTouch}
           style={{
-            transform: `translateX(-${currentIndex * computedValues.itemWidth +
-              currentIndex * computedValues.gap}px)`,
+            transform: `translateX(${positionComputedValues.translateXValue *
+              -1}px)`,
           }}
           ref={innerRef}
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
         >
           {childrens.map(childrenEl =>
             React.cloneElement(childrenEl, {
