@@ -12,13 +12,17 @@
   "license": "MIT",
   "scripts": {
     "start": "npx nexus-scripts start  ",
-    "build": "npx nexus-scripts build  "
+    "build": "npx nexus-scripts build  ",
+    "build:lib": "cross-env NODE_ENV=production npx babel --no-babelrc ./src/Slider.tsx --out-file ./lib/Slider.js --presets=babel-preset-webpack-nexus"
   },
+  "main": "lib/Slider.js",
   "dependencies": {
     "@hot-loader/react-dom": "16.10.2",
     "@types/react": "16.9.5",
     "@types/react-dom": "16.9.1",
     "@types/styled-components": "4.1.19",
+    "babel-preset-webpack-nexus": "^1.0.1",
+    "cross-env": "^6.0.3",
     "nexus-scripts": "^1.0.5",
     "react": "16.10.2",
     "react-dom": "16.10.2",
