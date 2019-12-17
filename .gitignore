@@ -62,5 +62,6 @@ typings/
 # next.js build output
 .next
 
-dist/
+# does not ignore dist folder to publish this on github pages
+# dist/
   
