@@ -161,7 +161,7 @@ const Slider = ({ children }) => {
         itemWidth: slideRef.current.getBoundingClientRect().width,
         containerWidth: containerRef.current.getBoundingClientRect().width,
         gap,
-        msMaxTouchPoints: navigator.msMaxTouchPoints,
+        msMaxTouchPoints: Boolean(navigator.msMaxTouchPoints),
       });
     }
   }, []);
@@ -182,8 +182,6 @@ const Slider = ({ children }) => {
       positionComputedValues.currentIndex * computedValues.itemWidth +
       positionComputedValues.currentIndex * computedValues.gap +
       (touchRef.current.startX - touchRef.current.moveX);
-
-    console.log({ touch: touchRef.current, translateXValue });
 
     setPositionComputedValues({
       ...positionComputedValues,
