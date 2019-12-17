@@ -6,10 +6,31 @@ const Container = styled.div`
   overflow: hidden;
 `;
 
-const Inner = styled.div<{ isTouch }>`
+const Inner = styled.div<{ isTouch?: boolean; msMaxTouchPoints: boolean }>`
   display: flex;
   flex-flow: row nowrap;
   ${props => !props.isTouch && `transition: transform 0.3s ease;`}
+
+  /* Remember, ie10 does not has 'touchmove', 'touchstart' and 'touchend' */
+  ${props =>
+    props.msMaxTouchPoints &&
+    `
+    overflow-x: scroll;
+    overflow-y: hidden;
+
+    -ms-overflow-style: none;
+    /* Hides the scrollbar. */
+
+    -ms-scroll-chaining: none;
+    /* Prevents Metro from swiping to the next tab or app. */
+
+    scroll-snap-type: mandatory;
+    -ms-scroll-snap-type: mandatory;
+    /* Forces a snap scroll behavior on your images. */
+
+    -ms-scroll-snap-points-x: snapInterval(0%, 100%);
+    /* Defines the y and x intervals to snap to when scrolling. */
+  `}
 `;
 
 /**
@@ -31,6 +52,7 @@ const Slider = ({ children }) => {
     containerWidth: 0,
     itemWidth: 0,
     gap: 0,
+    msMaxTouchPoints: false,
   });
   // const [innerSliderWidth, setInnerSlider] = React.useState(0);
   const [positionComputedValues, setPositionComputedValues] = React.useState<{
@@ -139,6 +161,7 @@ const Slider = ({ children }) => {
         itemWidth: slideRef.current.getBoundingClientRect().width,
         containerWidth: containerRef.current.getBoundingClientRect().width,
         gap,
+        msMaxTouchPoints: navigator.msMaxTouchPoints,
       });
     }
   }, []);
@@ -206,6 +229,14 @@ const Slider = ({ children }) => {
    *
    */
 
+  const eventHandlers = computedValues.msMaxTouchPoints
+    ? {}
+    : {
+        onTouchStart,
+        onTouchMove,
+        onTouchEnd,
+      };
+
   return (
     <div>
       <Container ref={containerRef}>
@@ -215,10 +246,9 @@ const Slider = ({ children }) => {
             transform: `translateX(${positionComputedValues.translateXValue *
               -1}px)`,
           }}
+          msMaxTouchPoints={computedValues.msMaxTouchPoints}
+          {...eventHandlers}
           ref={innerRef}
-          onTouchStart={onTouchStart}
-          onTouchMove={onTouchMove}
-          onTouchEnd={onTouchEnd}
         >
           {childrens.map(childrenEl =>
             React.cloneElement(childrenEl, {
