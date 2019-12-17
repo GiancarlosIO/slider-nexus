@@ -4,7 +4,7 @@
 
 _The most successful dev work smart, not hard._
 
-The project is still under development 👁️
+The project is still under development. 👁️
 
 ## Usage
 
