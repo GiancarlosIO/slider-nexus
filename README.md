@@ -5,7 +5,7 @@
 _The most successful dev work smart, not hard._
 
 ## Documentation
-[http://nexus-slider.s3-website-us-east-1.amazonaws.com/](https://nexus.dev/slider)
+[https://nexus.dev/slider](http://nexus-slider.s3-website-us-east-1.amazonaws.com/)
 
 The project is still under development. 👁️
 
