@@ -1,6 +1,6 @@
 # slider-nexus 🦆
 
-### A simple slided built with react, styled-components and typescript.
+### A simple slider component built with react, styled-components and typescript.
 
 _The most successful dev work smart, not hard._
 
