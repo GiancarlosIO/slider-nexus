@@ -41,7 +41,7 @@
     "eslint-plugin-prettier": "3.0.0",
     "eslint-plugin-react": "7.14.2",
     "eslint-plugin-react-hooks": "1.6.1",
-    "node-sass": "4.13.0",
+    "node-sass": "4.13.1",
     "prettier": "1.15.3",
     "typescript": "3.5.3",
     "typescript-styled-plugin": "0.14.0"
